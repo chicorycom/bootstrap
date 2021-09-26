@@ -5,7 +5,7 @@ namespace Boot\Foundation\Bootstrappers;
 
 
 
-use App\Providers\ServiceProvider;
+use Boot\Providers\ServiceProvider;
 
 class LoadServiceProviders extends Bootstrapper
 {
@@ -16,9 +16,9 @@ class LoadServiceProviders extends Bootstrapper
         $providers = config('app.providers');
 
         if ($app->bootedViaHttpRequest()) {
-            $providers = [...$providers, \App\Providers\RouteServiceProvider::class];
+            $providers = [...$providers, \Boot\Providers\RouteServiceProvider::class];
         } else if ($app->bootedViaConsole()) {
-            $providers = [...$providers, \App\Providers\ConsoleServiceProvider::class];
+            $providers = [...$providers, \Boot\Providers\ConsoleServiceProvider::class];
         }
 
         ServiceProvider::setup($app, $providers);
