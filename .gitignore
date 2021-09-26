@@ -1,0 +1,12 @@
+/vendor
+/.idea
+/node_modules
+/docker/mysql/data
+/Documents
+/src/storage/*.key
+/src/storage/cache
+/public/storage
+.env
+phinx.yml
+
+
