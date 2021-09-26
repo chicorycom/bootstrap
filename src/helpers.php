@@ -186,7 +186,7 @@ if (!function_exists('base_path'))
 {
     function base_path($path = ''): string
     {
-        return  dirname( dirname(__DIR__) ) . "/{$path}";
+        return  dirname( dirname( dirname (dirname(__DIR__) ) ) ). "/{$path}";
     }
 }
 
@@ -211,7 +211,7 @@ if (!function_exists('config_path'))
 {
     function config_path($path = ''): string
     {
-        return base_path("src/config/{$path}");
+        return base_path("config/{$path}");
     }
 }
 
@@ -219,7 +219,7 @@ if (!function_exists('storage_path'))
 {
     function storage_path($path = ''): string
     {
-        return base_path("src/storage/{$path}");
+        return base_path("storage/{$path}");
     }
 }
 
@@ -251,7 +251,7 @@ if (!function_exists('app_path'))
 {
     function app_path($path = ''): string
     {
-        return base_path("src/chicorycom/{$path}");
+        return base_path("src/{$path}");
     }
 }
 
