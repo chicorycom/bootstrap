@@ -1,1 +1,1 @@
-{"version":1,"defects":{"Tests\\Unit\\BasDirTest::test_base_dir":4},"times":{"Tests\\Unit\\ExampleTest::test_example":0.003,"Tests\\Unit\\BasDirTest::test_base_dir":0.004}}
+{"version":1,"defects":{"Tests\\Unit\\BasDirTest::test_base_dir":4},"times":{"Tests\\Unit\\ExampleTest::test_example":0.003,"Tests\\Unit\\BasDirTest::test_base_dir":0.002}}

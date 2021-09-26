@@ -2,7 +2,7 @@
 
 namespace Boot\Foundation\Bootstrappers;
 
-use App\Support\Console;
+use Boot\Support\Console;
 use Symfony\Component\Console\Application;
 
 class LoadConsoleEnvironment extends Bootstrapper
