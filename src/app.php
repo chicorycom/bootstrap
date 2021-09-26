@@ -7,6 +7,12 @@ use Boot\Foundation\AppFactoryBridge as App;
 
 $app = App::create(new Container);
 
+
+
+$app->addBodyParsingMiddleware();
+
+$app->addRoutingMiddleware();
+
 $_SERVER['app'] = &$app;
 
 if (!function_exists('app'))
@@ -16,9 +22,5 @@ if (!function_exists('app'))
         return $_SERVER['app'];
     }
 }
-
-$app->addBodyParsingMiddleware();
-
-$app->addRoutingMiddleware();
 
 return $app;

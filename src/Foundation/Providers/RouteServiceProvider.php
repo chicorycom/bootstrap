@@ -2,8 +2,8 @@
 
 namespace Boot\Foundation\Providers;
 
-use App\Support\Route;
-use App\Support\RouteGroup;
+use Boot\Support\Route;
+use Boot\Support\RouteGroup;
 
 class RouteServiceProvider extends SlimServiceProvider
 {
