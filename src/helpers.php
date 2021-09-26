@@ -44,6 +44,25 @@ if (!function_exists('old'))
     }
 }
 
+if(!function_exists('route'))
+{
+    /**
+     * Generate the URL to a named route.
+     *
+     * @param  array|string  $name
+     * @param  mixed  $parameters
+     * @param  bool  $absolute
+     * @return string
+     */
+    function route($name, $parameters = [], $absolute = true)
+    {
+        $routeParser = app()->getRouteCollector()->getRouteParser();
+        $routeParser->urlFor($name, $parameters, $absolute);
+        //return app('url')->route($name, $parameters, $absolute);
+        return  $routeParser->urlFor($name, $parameters, $absolute);
+    }
+}
+
 if (!function_exists('back'))
 {
     function back()
@@ -254,6 +273,7 @@ if (!function_exists('app_path'))
         return base_path("src/app/{$path}");
     }
 }
+
 
 if(!function_exists('str_limit')){
 

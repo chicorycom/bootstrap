@@ -6,6 +6,14 @@ namespace Boot\Foundation;
 
 class App extends \Slim\App
 {
+
+    /**
+     * The Laravel framework version.
+     *
+     * @var string
+     */
+    public const VERSION = '1.0.1';
+
     public function bootedViaConsole()
     {
         return $this->has('bootedViaConsole')
@@ -43,5 +51,15 @@ class App extends \Slim\App
     public function resolve(...$parameters)
     {
         return $this->getContainer()->get(...$parameters);
+    }
+
+    /**
+     * Get the version number of the application.
+     *
+     * @return string
+     */
+    public function version(): string
+    {
+        return static::VERSION;
     }
 }
