@@ -4,6 +4,7 @@
 namespace Boot\Support;
 
 use Illuminate\Support\Str;
+use Slim\Routing\RouteContext;
 
 class Route
 {

@@ -5,7 +5,7 @@ namespace Boot\Providers;
 
 
 
-use DB;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 
 class DatabaseServiceProvider extends ServiceProvider
@@ -14,12 +14,12 @@ class DatabaseServiceProvider extends ServiceProvider
     {
         $options = data_get(config('database.connections'), config('database.default'));
 
-        $capsule = new DB;
+        $capsule = new Capsule;
         $capsule->addConnection($options);
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
 
-        $this->bind(DB::class, fn () => $capsule);
+        $this->bind(Capsule::class, fn () => $capsule);
     }
 
     public function boot()

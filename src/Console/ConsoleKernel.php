@@ -28,6 +28,8 @@ class ConsoleKernel extends Kernel
         Commands\DatabaseRollbackMigrationCommand::class,
         Commands\StorageLinkCommand::class,
         Commands\VapidKeysGenerateCommand::class,
-        Commands\SchemaDumpCommand::class
+        Commands\SchemaDumpCommand::class,
+        Commands\DataBaseInstallMigration::class,
+        Commands\DatabaseMigrationStatusCommand::class,
     ];
 }

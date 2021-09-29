@@ -2,6 +2,8 @@
 
 namespace Boot\Providers;
 
+
+//use Boot\Foundation\Console\Application;
 use Boot\Support\Console;
 use Boot\Foundation\Kernel;
 
@@ -18,6 +20,7 @@ class ConsoleServiceProvider extends ServiceProvider
         require routes_path('console.php');
 
         $kernel = $this->app->resolve(Kernel::class);
+       // dd($this->app->resolve(Application::class));
 
         $route_commands = Console::commands();
         $kernel_commands = collect($kernel->commands)->map(fn ($command) => new $command);

@@ -19,6 +19,9 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->apiRouteGroup()->register();
         $this->webRouteGroup()->register();
+        $get = routes_path('pages.php');
+        if(file_exists($get)) $this->pagesRouteGroup($get)->register();
+
     }
 
     public function apiRouteGroup() : RouteGroup
@@ -40,6 +43,17 @@ class RouteServiceProvider extends ServiceProvider
         $web = $this->resolve(RouteGroup::class);
 
         return $web->routes($get)->prefix('')->middleware([
+            ...$add['web'],
+            ...$add['global']
+        ]);
+    }
+
+    public function pagesRouteGroup($get) : RouteGroup
+    {
+        $web = $this->resolve(RouteGroup::class);
+        $add = $this->resolve('middleware');
+
+        return $web->routes($get)->prefix('pages')->middleware([
             ...$add['web'],
             ...$add['global']
         ]);

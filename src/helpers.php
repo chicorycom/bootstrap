@@ -205,7 +205,7 @@ if (!function_exists('base_path'))
 {
     function base_path($path = ''): string
     {
-        return  dirname( dirname( dirname (dirname(__DIR__) ) ) ). "/{$path}";
+        return  app()->getPath() . "/{$path}";
     }
 }
 

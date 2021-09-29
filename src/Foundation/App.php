@@ -14,6 +14,15 @@ class App extends \Slim\App
      */
     public const VERSION = '1.0.1';
 
+
+    /**
+     * The base path for the Laravel installation.
+     *
+     * @var string
+     */
+    protected $basePath;
+
+
     public function bootedViaConsole()
     {
         return $this->has('bootedViaConsole')
@@ -61,5 +70,26 @@ class App extends \Slim\App
     public function version(): string
     {
         return static::VERSION;
+    }
+
+    /**
+     * Set the base path for the application.
+     *
+     * @param  string  $basePath
+     * @return $this
+     */
+    public function setPath($basePath): App
+    {
+        $this->basePath = rtrim($basePath, '\/');
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return $this->basePath;
     }
 }

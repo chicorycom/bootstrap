@@ -19,6 +19,7 @@ use Invoker\ParameterResolver\Container\TypeHintContainerResolver;
 
 class AppFactoryBridge extends Bridge
 {
+
     public static function create(ContainerInterface $container = null): App
     {
         $container = $container ?: new Container;

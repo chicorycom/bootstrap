@@ -3,6 +3,7 @@
 namespace Boot\Foundation\Console;
 
 use Symfony\Component\Console\Input\InputArgument as Arg;
+use Symfony\Component\Console\Input\InputOption;
 
 class Command extends Console
 {
@@ -35,15 +36,31 @@ class Command extends Console
         ];
     }
 
+    protected function options()
+    {
+        return [
+            'name' => ['array', 'of', 'options']
+        ];
+    }
+
     protected function configure()
     {
         $this->setName($this->name)
             ->setHelp($this->help)
             ->setDescription($this->description);
 
-        collect($this->arguments())->each(
+       collect($this->arguments())->each(
             fn ($options, $name) => $this->addArgument($name, ...$options)
         );
+
+        foreach ($this->options() as $options) {
+            if ($options instanceof InputOption) {
+                $this->getDefinition()->addOption($options);
+            } else {
+                $this->addOption(...array_values($options));
+            }
+        }
+
 
         if (method_exists($this, 'afterConfiguration'))
         {
