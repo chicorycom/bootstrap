@@ -9,7 +9,9 @@
     ],
     "autoload": {
         "files": [
-            "src/helpers.php"
+            "src/Foundation/helpers.php",
+            "src/helpers.php",
+            "src/Collections/helpers.php"
         ],
         "psr-4" : {
             "Boot\\" : "src/"
@@ -29,23 +31,32 @@
         "ext-openssl": "*",
         "ext-pdo": "*",
         "filp/whoops": "^2.12",
+        "illuminate/auth": "^8.62",
+        "illuminate/cache": "^8.62",
+        "illuminate/config": "^8.62",
+        "illuminate/contracts": "^8.62",
+        "illuminate/cookie": "^8.62",
         "illuminate/database": "8.37.*",
+        "illuminate/encryption": "^8.62",
+        "illuminate/hashing": "^8.62",
+        "illuminate/log": "^8.62",
         "illuminate/mail": "^8.61",
+        "illuminate/notifications": "^8.62",
+        "illuminate/queue": "^8.62",
+        "illuminate/routing": "^8.62",
+        "illuminate/testing": "^8.62",
         "illuminate/validation": "8.*",
-        "intervention/image": "^2.5",
         "jenssegers/blade": "dev-master",
         "minishlink/web-push": "dev-master",
-        "php-di/php-di": "^6.0",
-        "php-di/slim-bridge": "^3.1.0",
-        "slim/csrf": "1.x-dev",
-        "slim/psr7": "^1.5",
-        "slim/slim": "4.*",
         "swiftmailer/swiftmailer": "^6.2",
+        "symfony/cache": "^5.3",
         "symfony/process": "^5.3",
         "symfony/var-dumper": "^5.3",
         "symfony/yaml": "5.4.x-dev",
-        "vlucas/phpdotenv": "5.3.*",
-        "zeuxisoo/slim-whoops": "0.7.x-dev"
+        "vlucas/phpdotenv": "5.3.*"
+    },
+    "replace": {
+        "boot/console": "self.version"
     },
     "config": {
         "optimize-autoloader": true,

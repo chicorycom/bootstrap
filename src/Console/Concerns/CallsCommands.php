@@ -1,6 +1,6 @@
 <?php
 
-namespace Illuminate\Console\Concerns;
+namespace Boot\Console\Concerns;
 
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;

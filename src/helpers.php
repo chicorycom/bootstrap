@@ -1,307 +1,72 @@
 <?php
 
-
-use Boot\Foundation\Events\Dispatcher;
-use Boot\Support\RequestInput;
-use Boot\Support\View;
+use Illuminate\Contracts\Support\DeferringDisplayableValue;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
-use Psr\Http\Message\ResponseInterface as Response;
-use Slim\Psr7\UploadedFile;
+use Illuminate\Support\Env;
+use Illuminate\Support\HigherOrderTapProxy;
+use Illuminate\Support\Optional;
 
-
-if (!function_exists('view'))
-{
-    function view($template, $with=[]): Response
-    {
-       // dd($_SERVER['REQUEST_URI'], explode('/', $_SERVER['REQUEST_URI'])[1]);
-        $view = app()->resolve(View::class);
-        return $view($template, $with);
-    }
-}
-
-
-if (!function_exists('event'))
-{
-    function event() : Dispatcher
-    {
-        return app()->resolve('events');
-    }
-}
-
-if (!function_exists('old'))
-{
-    function old($key)
-    {
-        $input = app()->resolve('old_input');
-
-        $field = collect($input)->filter(fn ($value, $field) => $key == $field);
-
-        if (isset($field[$key])) {
-            return $field[$key];
-        }
-    }
-}
-
-if(!function_exists('route'))
-{
+if (! function_exists('append_config')) {
     /**
-     * Generate the URL to a named route.
+     * Assign high numeric IDs to a config item to force appending.
      *
-     * @param  array|string  $name
-     * @param  mixed  $parameters
-     * @param  bool  $absolute
-     * @return string
+     * @param  array  $array
+     * @return array
      */
-    function route($name, $parameters = [], $absolute = true)
+    function append_config(array $array)
     {
-        $routeParser = app()->getRouteCollector()->getRouteParser();
-        $routeParser->urlFor($name, $parameters, $absolute);
-        //return app('url')->route($name, $parameters, $absolute);
-        return  $routeParser->urlFor($name, $parameters, $absolute);
-    }
-}
+        $start = 9999;
 
-if (!function_exists('back'))
-{
-    function back()
-    {
-        $route = app()->resolve(RequestInput::class);
+        foreach ($array as $key => $value) {
+            if (is_numeric($key)) {
+                $start++;
 
-        $back = $route->getCurrentUri();
-
-        return redirect($back);
-    }
-}
-
-if (!function_exists('validator'))
-{
-    function validator(array $input, array $rules, array $messages = [])
-    {
-        $factory = app()->resolve(\Boot\Foundation\Http\ValidatorFactory::class);
-
-        return $factory->make($input, $rules, $messages);
-    }
-}
-
-
-if (!function_exists('session'))
-{
-    function session($key = false, $value = false)
-    {
-        $session = app()->resolve(\Boot\Foundation\Http\Session::class);
-
-        if (!$key) {
-            return $session;
+                $array[$start] = Arr::pull($array, $key);
+            }
         }
 
-        if (!$value) {
-            return $session->get($key);
-        }
-
-        $session->set($key, $value);
-
-        return $session;
+        return $array;
     }
 }
 
-if(!function_exists('csrf_field'))
-{
-    function csrf_field(): \Illuminate\Support\Stringable
-    {
-        $token = app()->resolve('csrf');
-        $stub = "<input type='hidden' name='{replace}' value='{replace}' />";
-
-
-        $csrf_value_input = Str::of($stub)->replaceArray('{replace}', [
-            $token->getTokenValueKey(),
-            $token->getTokenValue()
-        ]);
-
-        $csrf_name_input = Str::of($stub)->replaceArray('{replace}', [
-            $token->getTokenNameKey(),
-            $token->getTokenName()
-        ]);
-
-        $stub = "{replace} \n {replace}";
-
-        $expression = Str::of($stub)->replaceArray('{replace}', [
-            $csrf_value_input,
-            $csrf_name_input
-        ]);
-
-        return $expression;
-    }
-}
-
-if (!function_exists('asset'))
-{
-    function asset($path): string
-    {
-        return env('APP_URL') . "/{$path}";
-    }
-}
-
-
-if (!function_exists('redirect'))
-{
-    function redirect(string $to)
-    {
-        $redirect = app()->resolve(\Boot\Support\Redirect::class);
-
-        return $redirect($to);
-    }
-}
-
-if(!function_exists('move')){
+if (! function_exists('blank')) {
     /**
-     * @param $directory
-     * @param UploadedFile $uploadedFile
-     * @param null $basename
-     * @return string
-     * @throws Exception
+     * Determine if the given value is "blank".
+     *
+     * @param  mixed  $value
+     * @return bool
      */
-    function move($directory, UploadedFile $uploadedFile, $basename=null): string
+    function blank($value)
     {
-        $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
-        if(!$basename){
-            $basename = md5(bin2hex(random_bytes(8))); // see http://php.net/manual/en/function.random-bytes.php
+        if (is_null($value)) {
+            return true;
         }
 
-        $filename = sprintf('%s.%0.8s', $basename, $extension);
+        if (is_string($value)) {
+            return trim($value) === '';
+        }
 
-        $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
+        if (is_numeric($value) || is_bool($value)) {
+            return false;
+        }
 
-        return $filename;
+        if ($value instanceof Countable) {
+            return count($value) === 0;
+        }
+
+        return empty($value);
     }
 }
 
-
-
-if (!function_exists('collect'))
-{
-    function collect($items): Collection
-    {
-        return new Collection($items);
-    }
-}
-
-
-
-if (!function_exists('env'))
-{
-    function env($key, $default = null)
-    {
-        $value = getenv($key);
-
-        throw_when(!$value and !$default, "{$key} is not a defined .env variable and has not default value");
-
-        return $value or $default;
-    }
-}
-
-if (!function_exists('base_path'))
-{
-    function base_path($path = ''): string
-    {
-        return  app()->getPath() . "/{$path}";
-    }
-}
-
-if (!function_exists('database_path'))
-{
-    function database_path($path = ''): string
-    {
-        return base_path("src/database/{$path}");
-    }
-}
-
-if (!function_exists('src_path'))
-{
-    function src_path($path = ''): string
-    {
-        return base_path("src/{$path}");
-    }
-}
-
-
-if (!function_exists('config_path'))
-{
-    function config_path($path = ''): string
-    {
-        return base_path("src/config/{$path}");
-    }
-}
-
-if (!function_exists('storage_path'))
-{
-    function storage_path($path = ''): string
-    {
-        return base_path("src/storage/{$path}");
-    }
-}
-
-if (!function_exists('public_path'))
-{
-    function public_path($path = '')
-    {
-        return base_path("public/{$path}");
-    }
-}
-
-if (!function_exists('resources_path'))
-{
-    function resources_path($path = ''): string
-    {
-        return base_path("src/resources/{$path}");
-    }
-}
-
-if (!function_exists('routes_path'))
-{
-    function routes_path($path = '')
-    {
-        return base_path("src/routes/{$path}");
-    }
-}
-
-if (!function_exists('app_path'))
-{
-    function app_path($path = ''): string
-    {
-        return base_path("src/app/{$path}");
-    }
-}
-
-
-if(!function_exists('str_limit')){
-
+if (! function_exists('class_basename')) {
     /**
-     * @param $string
-     * @param int $limit
-     * @param string $end
+     * Get the class "basename" of the given object / class.
+     *
+     * @param  string|object  $class
      * @return string
      */
-    function  str_limit($string, $limit=20, $end='...'): string
-    {
-       return Str::limit($string, $limit, $end);
-    }
-}
-
-if (!function_exists('throw_when'))
-{
-    function throw_when(bool $fails, string $message, string $exception = Exception::class)
-    {
-        if (!$fails) return;
-
-        throw new $exception($message);
-    }
-}
-
-if (! function_exists('class_basename'))
-{
-    function class_basename($class): string
+    function class_basename($class)
     {
         $class = is_object($class) ? get_class($class) : $class;
 
@@ -309,138 +74,306 @@ if (! function_exists('class_basename'))
     }
 }
 
-if (!function_exists('config'))
-{
-    function config($path = null)
+if (! function_exists('class_uses_recursive')) {
+    /**
+     * Returns all traits used by a class, its parent classes and trait of their traits.
+     *
+     * @param  object|string  $class
+     * @return array
+     */
+    function class_uses_recursive($class)
     {
-        $config = [];
-        $folder = scandir(config_path());
-        $config_files = array_slice($folder, 2, count($folder));
-
-        foreach ($config_files as $file)
-        {
-            throw_when(
-                Str::after($file, '.') !== 'php',
-                'Config files must be .php files'
-            );
-
-
-            data_set($config, Str::before($file, '.php') , require config_path($file));
+        if (is_object($class)) {
+            $class = get_class($class);
         }
 
-        return data_get($config, $path);
+        $results = [];
+
+        foreach (array_reverse(class_parents($class)) + [$class => $class] as $class) {
+            $results += trait_uses_recursive($class);
+        }
+
+        return array_unique($results);
     }
 }
 
-if (! function_exists('data_get')) {
+if (! function_exists('e')) {
     /**
-     * Get an item from an array or object using "dot" notation.
+     * Encode HTML special characters in a string.
      *
-     * @param  mixed  $target
-     * @param  string|array|int|null  $key
+     * @param  \Illuminate\Contracts\Support\DeferringDisplayableValue|\Illuminate\Contracts\Support\Htmlable|string|null  $value
+     * @param  bool  $doubleEncode
+     * @return string
+     */
+    function e($value, $doubleEncode = true)
+    {
+        if ($value instanceof DeferringDisplayableValue) {
+            $value = $value->resolveDisplayableValue();
+        }
+
+        if ($value instanceof Htmlable) {
+            return $value->toHtml();
+        }
+
+        return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8', $doubleEncode);
+    }
+}
+
+if (! function_exists('env')) {
+    /**
+     * Gets the value of an environment variable.
+     *
+     * @param  string  $key
      * @param  mixed  $default
      * @return mixed
      */
-    function data_get($target, $key, $default = null)
+    function env($key, $default = null)
     {
-        if (is_null($key)) {
-            return $target;
-        }
-
-        $key = is_array($key) ? $key : explode('.', $key);
-
-        while (! is_null($segment = array_shift($key))) {
-            if ($segment === '*') {
-                if ($target instanceof Collection) {
-                    $target = $target->all();
-                } elseif (! is_array($target)) {
-                    return value($default);
-                }
-
-                $result = [];
-
-                foreach ($target as $item) {
-                    $result[] = data_get($item, $key);
-                }
-
-                return in_array('*', $key) ? Arr::collapse($result) : $result;
-            }
-
-            if (Arr::accessible($target) && Arr::exists($target, $segment)) {
-                $target = $target[$segment];
-            } elseif (is_object($target) && isset($target->{$segment})) {
-                $target = $target->{$segment};
-            } else {
-                return value($default);
-            }
-        }
-
-        return $target;
+        return Env::get($key, $default);
     }
 }
 
-if (! function_exists('data_set')) {
+if (! function_exists('filled')) {
     /**
-     * Set an item on an array or object using dot notation.
+     * Determine if a value is "filled".
      *
-     * @param mixed $target
-     * @param string|array $key
-     * @param mixed $value
-     * @param bool $overwrite
+     * @param  mixed  $value
+     * @return bool
+     */
+    function filled($value)
+    {
+        return ! blank($value);
+    }
+}
+
+if (! function_exists('object_get')) {
+    /**
+     * Get an item from an object using "dot" notation.
+     *
+     * @param  object  $object
+     * @param  string|null  $key
+     * @param  mixed  $default
      * @return mixed
      */
-    function data_set(&$target, $key, $value, $overwrite = true)
+    function object_get($object, $key, $default = null)
     {
-        $segments = is_array($key) ? $key : explode('.', $key);
-
-        if (($segment = array_shift($segments)) === '*') {
-            if (!Arr::accessible($target)) {
-                $target = [];
-            }
-
-            if ($segments) {
-                foreach ($target as &$inner) {
-                    data_set($inner, $segments, $value, $overwrite);
-                }
-            } elseif ($overwrite) {
-                foreach ($target as &$inner) {
-                    $inner = $value;
-                }
-            }
-        } elseif (Arr::accessible($target)) {
-            if ($segments) {
-                if (!Arr::exists($target, $segment)) {
-                    $target[$segment] = [];
-                }
-
-                data_set($target[$segment], $segments, $value, $overwrite);
-            } elseif ($overwrite || !Arr::exists($target, $segment)) {
-                $target[$segment] = $value;
-            }
-        } elseif (is_object($target)) {
-            if ($segments) {
-                if (!isset($target->{$segment})) {
-                    $target->{$segment} = [];
-                }
-
-                data_set($target->{$segment}, $segments, $value, $overwrite);
-            } elseif ($overwrite || !isset($target->{$segment})) {
-                $target->{$segment} = $value;
-            }
-        } else {
-            $target = [];
-
-            if ($segments) {
-                data_set($target[$segment], $segments, $value, $overwrite);
-            } elseif ($overwrite) {
-                $target[$segment] = $value;
-            }
+        if (is_null($key) || trim($key) === '') {
+            return $object;
         }
 
-        return $target;
+        foreach (explode('.', $key) as $segment) {
+            if (! is_object($object) || ! isset($object->{$segment})) {
+                return value($default);
+            }
+
+            $object = $object->{$segment};
+        }
+
+        return $object;
     }
 }
 
+if (! function_exists('optional')) {
+    /**
+     * Provide access to optional objects.
+     *
+     * @param  mixed  $value
+     * @param  callable|null  $callback
+     * @return mixed
+     */
+    function optional($value = null, callable $callback = null)
+    {
+        if (is_null($callback)) {
+            return new Optional($value);
+        } elseif (! is_null($value)) {
+            return $callback($value);
+        }
+    }
+}
 
+if (! function_exists('preg_replace_array')) {
+    /**
+     * Replace a given pattern with each value in the array in sequentially.
+     *
+     * @param  string  $pattern
+     * @param  array  $replacements
+     * @param  string  $subject
+     * @return string
+     */
+    function preg_replace_array($pattern, array $replacements, $subject)
+    {
+        return preg_replace_callback($pattern, function () use (&$replacements) {
+            foreach ($replacements as $key => $value) {
+                return array_shift($replacements);
+            }
+        }, $subject);
+    }
+}
 
+if (! function_exists('retry')) {
+    /**
+     * Retry an operation a given number of times.
+     *
+     * @param  int  $times
+     * @param  callable  $callback
+     * @param  int|\Closure  $sleepMilliseconds
+     * @param  callable|null  $when
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    function retry($times, callable $callback, $sleepMilliseconds = 0, $when = null)
+    {
+        $attempts = 0;
 
+        beginning:
+        $attempts++;
+        $times--;
+
+        try {
+            return $callback($attempts);
+        } catch (Exception $e) {
+            if ($times < 1 || ($when && ! $when($e))) {
+                throw $e;
+            }
+
+            if ($sleepMilliseconds) {
+                usleep(value($sleepMilliseconds, $attempts) * 1000);
+            }
+
+            goto beginning;
+        }
+    }
+}
+
+if (! function_exists('tap')) {
+    /**
+     * Call the given Closure with the given value then return the value.
+     *
+     * @param  mixed  $value
+     * @param  callable|null  $callback
+     * @return mixed
+     */
+    function tap($value, $callback = null)
+    {
+        if (is_null($callback)) {
+            return new HigherOrderTapProxy($value);
+        }
+
+        $callback($value);
+
+        return $value;
+    }
+}
+
+if (! function_exists('throw_if')) {
+    /**
+     * Throw the given exception if the given condition is true.
+     *
+     * @param  mixed  $condition
+     * @param  \Throwable|string  $exception
+     * @param  mixed  ...$parameters
+     * @return mixed
+     *
+     * @throws \Throwable
+     */
+    function throw_if($condition, $exception = 'RuntimeException', ...$parameters)
+    {
+        if ($condition) {
+            if (is_string($exception) && class_exists($exception)) {
+                $exception = new $exception(...$parameters);
+            }
+
+            throw is_string($exception) ? new RuntimeException($exception) : $exception;
+        }
+
+        return $condition;
+    }
+}
+
+if (! function_exists('throw_unless')) {
+    /**
+     * Throw the given exception unless the given condition is true.
+     *
+     * @param  mixed  $condition
+     * @param  \Throwable|string  $exception
+     * @param  mixed  ...$parameters
+     * @return mixed
+     *
+     * @throws \Throwable
+     */
+    function throw_unless($condition, $exception = 'RuntimeException', ...$parameters)
+    {
+        throw_if(! $condition, $exception, ...$parameters);
+
+        return $condition;
+    }
+}
+
+if (! function_exists('trait_uses_recursive')) {
+    /**
+     * Returns all traits used by a trait and its traits.
+     *
+     * @param  string  $trait
+     * @return array
+     */
+    function trait_uses_recursive($trait)
+    {
+        $traits = class_uses($trait) ?: [];
+
+        foreach ($traits as $trait) {
+            $traits += trait_uses_recursive($trait);
+        }
+
+        return $traits;
+    }
+}
+
+if (! function_exists('transform')) {
+    /**
+     * Transform the given value if it is present.
+     *
+     * @param  mixed  $value
+     * @param  callable  $callback
+     * @param  mixed  $default
+     * @return mixed|null
+     */
+    function transform($value, callable $callback, $default = null)
+    {
+        if (filled($value)) {
+            return $callback($value);
+        }
+
+        if (is_callable($default)) {
+            return $default($value);
+        }
+
+        return $default;
+    }
+}
+
+if (! function_exists('windows_os')) {
+    /**
+     * Determine whether the current environment is Windows based.
+     *
+     * @return bool
+     */
+    function windows_os()
+    {
+        return PHP_OS_FAMILY === 'Windows';
+    }
+}
+
+if (! function_exists('with')) {
+    /**
+     * Return the given value, optionally passed through the given callback.
+     *
+     * @param  mixed  $value
+     * @param  callable|null  $callback
+     * @return mixed
+     */
+    function with($value, callable $callback = null)
+    {
+        return is_null($callback) ? $value : $callback($value);
+    }
+}
