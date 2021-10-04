@@ -43,6 +43,7 @@
         "illuminate/mail": "^8.61",
         "illuminate/notifications": "^8.62",
         "illuminate/queue": "^8.62",
+        "illuminate/redis": "^8.62",
         "illuminate/routing": "^8.62",
         "illuminate/testing": "^8.62",
         "illuminate/validation": "8.*",

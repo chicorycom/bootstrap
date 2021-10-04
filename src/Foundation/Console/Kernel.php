@@ -85,6 +85,8 @@ class Kernel implements KernelContract
         $this->app = $app;
         $this->events = $events;
 
+
+
         $this->app->booted(function () {
             $this->defineConsoleSchedule();
         });
@@ -328,8 +330,10 @@ class Kernel implements KernelContract
     protected function getArtisan()
     {
         if (is_null($this->artisan)) {
-            return $this->artisan = (new Artisan($this->app, $this->events, $this->app->version()))
+            $this->artisan = (new Artisan($this->app, $this->events, $this->app->version()))
                                 ->resolveCommands($this->commands);
+            $this->artisan->setName('CHICORYCOM FRAMEWORK');
+            return $this->artisan;
         }
 
         return $this->artisan;
