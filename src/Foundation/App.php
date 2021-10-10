@@ -35,7 +35,7 @@ class App extends Container implements ApplicationContract, CachesConfiguration,
      *
      * @var string
      */
-    const VERSION = '1.1.0';
+    const VERSION = '1.2.1';
 
 
     /**
