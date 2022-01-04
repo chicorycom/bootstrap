@@ -23,11 +23,12 @@ class Route
 
         [$route, $action] = $parameters;
 
-        self::validation($route, $verb, $action);
-
-        return is_callable($action, true)
-            ? $app->$verb($route, $action)
-            : $app->$verb($route, self::resolveViaController($action));
+        if(is_callable($action)){
+            return $app->$verb($route, $action);
+        }
+        return ((is_string($action) and Str::is("*@*", $action)))
+            ? $app->$verb($route, self::resolveViaController($action))
+            : $app->$verb($route, $action) ;
     }
 
     /**
