@@ -72,6 +72,19 @@ class RequestInput
         return $this;
     }
 
+
+    public function getRequest(){
+        return data_get($this->meta, 'request');
+    }
+
+    public function get($name){
+        return data_get($this->getRequest()->getQueryParams(), $name);
+    }
+
+    public function getAll(){
+        return $this->getRequest()->getQueryParams();
+    }
+
     /**
      * Define Methods To Gather Route Meta Information
      */
