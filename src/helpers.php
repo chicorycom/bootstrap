@@ -4,6 +4,7 @@
 use Boot\Foundation\Events\Dispatcher;
 use Boot\Support\RequestInput;
 use Boot\Support\View;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -132,6 +133,17 @@ if(!function_exists('csrf_field'))
         ]);
 
         return $expression;
+    }
+}
+
+if(! function_exists('now'))
+{
+    /**
+     * @return Carbon
+     */
+    function now(): Carbon
+    {
+        return Carbon::now();
     }
 }
 
