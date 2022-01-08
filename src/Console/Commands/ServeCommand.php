@@ -18,6 +18,9 @@ class ServeCommand extends Command
     protected $name = 'serve';
 
 
+    /**
+     * @var string
+     */
     protected $help = 'Serve the application on the PHP development server';
 
 
@@ -42,21 +45,19 @@ class ServeCommand extends Command
      *
      * @throws \Exception
      */
-    public function handler()
+    public function handler(): int
     {
         chdir(public_path());
 
         $this->info("Starting Laravel development server: http://{$this->host()}:{$this->port()}");
 
-        $environmentFile = $this->option('env')
-                            ? base_path('.env').'.'.$this->option('env')
-                            : base_path('.env');
+        $environmentFile = base_path('.env');
 
         $hasEnvironment = file_exists($environmentFile);
 
         $environmentLastModified = $hasEnvironment
-                            ? filemtime($environmentFile)
-                            : now()->addDays(30)->getTimestamp();
+            ? filemtime($environmentFile)
+            : now()->addDays(30)->getTimestamp();
 
         $process = $this->startProcess($hasEnvironment);
 
@@ -85,7 +86,7 @@ class ServeCommand extends Command
         if ($status && $this->canTryAnotherPort()) {
             $this->portOffset += 1;
 
-            return $this->handle();
+            return $this->handler();
         }
 
         return $status;
@@ -94,10 +95,10 @@ class ServeCommand extends Command
     /**
      * Start a new server process.
      *
-     * @param  bool  $hasEnvironment
-     * @return \Symfony\Component\Process\Process
+     * @param bool $hasEnvironment
+     * @return Process
      */
-    protected function startProcess($hasEnvironment)
+    protected function startProcess(bool $hasEnvironment): Process
     {
         $process = new Process($this->serverCommand(), null, collect($_ENV)->mapWithKeys(function ($value, $key) use ($hasEnvironment) {
             if ($this->option('no-reload') || ! $hasEnvironment) {
@@ -124,7 +125,7 @@ class ServeCommand extends Command
      *
      * @return array
      */
-    protected function serverCommand()
+    protected function serverCommand(): array
     {
         return [
             (new PhpExecutableFinder)->find(false),
@@ -139,7 +140,7 @@ class ServeCommand extends Command
      *
      * @return string
      */
-    protected function host()
+    protected function host(): string
     {
         [$host, ] = $this->getHostAndPort();
 
@@ -153,7 +154,7 @@ class ServeCommand extends Command
      */
     protected function port()
     {
-        $port = $this->options('port');
+        $port = $this->option('port');
 
         if (is_null($port)) {
             [, $port] = $this->getHostAndPort();
@@ -169,9 +170,10 @@ class ServeCommand extends Command
      *
      * @return array
      */
-    protected function getHostAndPort()
+    protected function getHostAndPort(): array
     {
-        $hostParts = explode(':', $this->options('host'));
+
+        $hostParts = explode(':', $this->option('host'));
 
         return [
             $hostParts[0],
@@ -184,10 +186,10 @@ class ServeCommand extends Command
      *
      * @return bool
      */
-    protected function canTryAnotherPort()
+    protected function canTryAnotherPort(): bool
     {
         return is_null($this->option('port')) &&
-               ($this->option('tries') > $this->portOffset);
+            ($this->option('tries') > $this->portOffset);
     }
 
     /**
@@ -195,7 +197,7 @@ class ServeCommand extends Command
      *
      * @return array
      */
-    protected function options()
+    protected function options(): array
     {
         return [
             ['host', null, InputOption::VALUE_OPTIONAL, 'The host address to serve the application on', '127.0.0.1'],
