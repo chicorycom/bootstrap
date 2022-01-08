@@ -32,5 +32,6 @@ class ConsoleKernel extends Kernel
         Commands\DataBaseInstallMigration::class,
         Commands\DatabaseMigrationStatusCommand::class,
         Commands\ServeCommand::class,
+        Commands\SeedCommand::class,
     ];
 }
