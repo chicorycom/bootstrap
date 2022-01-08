@@ -4,7 +4,7 @@
 namespace Boot\Console\Commands;
 
 
-class MakeSeederCommand extends Command
+class MakeSeederCommand extends MakeScaffoldCommand
 {
     protected $name = 'make:seeder';
     protected $help = 'Make a Seeder Scaffold';
@@ -19,10 +19,27 @@ class MakeSeederCommand extends Command
 
     public function handler()
     {
-        $name = $this->input->getArgument('name');
-        $command = "./vendor/bin/phinx seed:create {$name}";
 
-        shell_exec($command);
-        $this->info("Successful (If no message is displayed above)");
+        $file = $this->scaffold(
+            $this->stub('file'),
+            $this->stub('replace.file')
+        );
+
+        $content = $this->scaffold(
+            $this->stub('content'),
+            $this->stub('replace.content')
+        );
+
+        $path = "{$this->stub('make_path')}/{$file}";
+
+        $exists = $this->files->exists($path);
+
+        if ($exists) {
+            return $this->error("{$file} already exists!");
+        }
+
+        $status = $this->files->put($path, $content);
+
+        $this->info("Successfully Generated {$file}! (status: {$status})");
     }
 }
