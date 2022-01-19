@@ -23,11 +23,12 @@ class Route
 
         [$route, $action] = $parameters;
 
-        self::validation($route, $verb, $action);
-
-        return is_callable($action)
-            ? $app->$verb($route, $action)
-            : $app->$verb($route, self::resolveViaController($action));
+        if(is_callable($action)){
+            return $app->$verb($route, $action);
+        }
+        return ((is_string($action) and Str::is("*@*", $action)))
+            ? $app->$verb($route, self::resolveViaController($action))
+            : $app->$verb($route, $action) ;
     }
 
     /**
@@ -65,10 +66,12 @@ class Route
 
     protected static function validation($route, $verb, $action)
     {
+
         $exception = "Unresolvable Route Callback/Controller action";
         $context = json_encode(compact('route', 'action', 'verb'));
-        $fails = !((is_callable($action)) or (is_string($action) and Str::is("*@*", $action)));
-
+        //dd(is_callable($action, true) );
+        $fails = !((is_callable($action, true)) or (is_string($action) and Str::is("*@*", $action)));
+        //dd($fails);
         throw_when($fails, $exception . $context);
     }
 }
