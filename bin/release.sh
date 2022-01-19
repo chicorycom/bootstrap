@@ -42,10 +42,10 @@ then
 fi
 
 # Always prepend with "v"
-if [[ $VERSION != v*  ]]
-then
-    VERSION="v$VERSION"
-fi
+#if [[ $VERSION != v*  ]]
+#then
+#    VERSION="v$VERSION"
+#fi
 
 # Tag Framework
 git tag $VERSION
