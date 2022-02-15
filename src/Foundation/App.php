@@ -12,7 +12,7 @@ class App extends \Slim\App
      *
      * @var string
      */
-    public const VERSION = '2.1.9';
+    public const VERSION = '2.1.10';
 
 
     /**
